@@ -1,32 +1,21 @@
 'use strict';
-
+const keyData = 'data';
+let data = [];
 // Данные
-const data = [
-  {
-    name: 'Иван',
-    surname: 'Петров',
-    phone: '+79514545454',
-  },
-  {
-    name: 'Игорь',
-    surname: 'Семёнов',
-    phone: '+79999999999',
-  },
-  {
-    name: 'Семён',
-    surname: 'Иванов',
-    phone: '+79800252525',
-  },
-  {
-    name: 'Мария',
-    surname: 'Попова',
-    phone: '+79876543210',
-  },
-];
 
 {
+  const getLocal = (key, data) => {
+    if (localStorage.getItem(key)) {
+      data = JSON.parse(localStorage.getItem(key));
+    } else data = [];
+    return data;
+  };
+  const setLocal = (key, arr) => {
+    localStorage.setItem(key, JSON.stringify(arr));
+  };
   const addContactData = (contact) => {
     data.push(contact);
+    setLocal(keyData, data);
   };
   // контейнер
   const createContainer = () => {
@@ -185,7 +174,7 @@ const data = [
     };
   };
 
-  const createRow = ({name: firstname, surname, phone}) => {
+  const createRow = ({name, surname, phone}) => {
     const tr = document.createElement('tr');
     tr.classList.add('contact');
 
@@ -197,7 +186,7 @@ const data = [
     tdDel.append(buttonDel);
 
     const tdName = document.createElement('td');
-    tdName.textContent = firstname;
+    tdName.textContent = name;
 
     const tdSurname = document.createElement('td');
     tdSurname.textContent = surname;
@@ -264,7 +253,14 @@ const data = [
     });
 
     list.addEventListener('click', (e) => {
+      const delIcon = Array.from(list.querySelectorAll('.del-icon'));
       if (e.target.closest('.del-icon')) {
+        for (let i = 0; i <= delIcon.length; i++) {
+          if (e.target === delIcon[i]) {
+            data.splice(i, 1);
+            setLocal(keyData, data);
+          }
+        }
         e.target.closest('.contact').remove();
       }
     });
@@ -283,6 +279,8 @@ const data = [
       addContactPage(newContact, list);
       form.reset();
       closeModal();
+      console.log(newContact);
+      console.log(data);
     });
   };
 
@@ -295,6 +293,7 @@ const data = [
     );
 
     // функционал
+    data = getLocal(keyData, data);
     const allRow = renderContacts(list, data);
     const {closeModal} = modalControl(btnAdd, formOverlay);
     hoverRow(allRow, logo);
